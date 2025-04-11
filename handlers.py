@@ -15,6 +15,49 @@ class Register(StatesGroup):
     name = State()
     number = State()
 
+greeted_users = set()
+
+@router.message(F.text)
+async def handle_first_message(message: Message):
+    user_id = message.from_user.id
+    if user_id not in greeted_users:
+        greeted_users.add(user_id)
+        welcome_text = """
+            Привет, я бот для заказа еды!
+
+            Вот список доступных команд:
+            /start - Перезапустить бота
+            /menu - Показать меню
+            /cart - Показать корзину
+            /help - Помощь
+
+            Выберите действие или нажмите на кнопку ниже:
+            """
+        await message.answer(
+            welcome_text, reply_markup=kb.main_menu
+        )
+    else:
+        await message.answer('Используйте кнопки ниже!')
+
+
+
+@router.message(CommandStart())
+async def cmd_start(message: Message):
+    welcome_text = """
+    Привет, я бот для заказа еды!
+    
+    Вот список доступных команд:
+    /start - Перезапустить бота
+    /menu - Показать меню
+    /cart - Показать корзину
+    /help - Помощь
+    
+    Выберите действие или нажмите на кнопку ниже:
+    """
+    await message.answer(
+        welcome_text, reply_markup=kb.main_menu
+    )
+
 
 @router.message(Command("register"))
 async def cmd_register(message: Message, state: FSMContext):
@@ -46,61 +89,53 @@ async def cmd_menu(message: Message):
 async def cmd_hot_meals(callback: CallbackQuery):
     await callback.answer('Горячие блюда')
 
-@router.message(Command("hello"))
-async def cmd_hello(message: Message):
+
+@router.message(Command('menu'))
+async def cmd_menu(message: Message):
     await message.answer(
-        f"Hello, {html.bold(html.quote(message.from_user.full_name))}", reply_markup=kb.main_menu
+        f"Меню", reply_markup=kb.menu
     )
-
-@router.message(F.text)
-async def echo_with_time(message: Message):
-    # Получаем текущее время в часовом поясе ПК
-    time_now = datetime.now().strftime('%H:%M')
-    # Создаём подчёркнутый текст
-    added_text = html.underline(f"Создано в {time_now}")
-    # Отправляем новое сообщение с добавленным текстом
-    await message.answer(f"{message.html_text}\n\n{added_text}", parse_mode="HTML")
-
-
-@router.message(Command("add_to_list"))
-async def cmd_add_to_list(message: types.Message, mylist: list[int]):
-    mylist.append(7)
-    await message.answer("Добавлено число 7")
-
-
-@router.message(Command("show_list"))
-async def cmd_show_list(message: types.Message, mylist: list[int]):
-    await message.answer(f"Ваш список: {mylist}")
+# @router.message(Command("hello"))
+# async def cmd_hello(message: Message):
+#     await message.answer(
+#         f"Hello, {html.bold(html.quote(message.from_user.full_name))}", reply_markup=kb.main_menu
+#     )
+#
+# @router.message(F.text)
+# async def echo_with_time(message: Message):
+#     # Получаем текущее время в часовом поясе ПК
+#     time_now = datetime.now().strftime('%H:%M')
+#     # Создаём подчёркнутый текст
+#     added_text = html.underline(f"Создано в {time_now}")
+#     # Отправляем новое сообщение с добавленным текстом
+#     await message.answer(f"{message.html_text}\n\n{added_text}", parse_mode="HTML")
 
 
-@router.message(Command("info"))
-async def cmd_info(message: types.Message, started_at: str):
-    await message.answer(f"Бот запущен {started_at}")
+# @router.message(Command("add_to_list"))
+# async def cmd_add_to_list(message: types.Message, mylist: list[int]):
+#     mylist.append(7)
+#     await message.answer("Добавлено число 7")
 
 
-# Хэндлер на команду /start
-@router.message(Command("start"))
-async def cmd_start(message: types.Message):
-    await message.answer("Hello!")
+# @router.message(Command("show_list"))
+# async def cmd_show_list(message: types.Message, mylist: list[int]):
+#     await message.answer(f"Ваш список: {mylist}")
 
 
-@router.message(Command("test1"))
-async def cmd_test1(message: types.Message):
-    await message.reply("Test 1")
+# @router.message(Command("info"))
+# async def cmd_info(message: types.Message, started_at: str):
+#     await message.answer(f"Бот запущен {started_at}")
 
 
-@router.message(Command("answer"))
-async def cmd_answer(message: types.Message):
-    await message.answer("<b>Это простой ответ</b>")
+# # Хэндлер на команду /start
+# @router.message(Command("start"))
+# async def cmd_start(message: types.Message):
+#     await message.answer("Hello!")
 
 
-@router.message(Command("reply"))
-async def cmd_reply(message: types.Message):
-    await message.reply('Это ответ с "ответом"')
 
 
-@router.message(F.text, Command("test"))
-async def any_message(message: Message):
-    await message.answer(
-        "Hello, <b>world!</b>"
-    )
+
+
+
+
