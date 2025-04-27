@@ -49,6 +49,7 @@ class Category(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(50), unique=True)
+    # photo_url = Column(String(255))
 
     meals = relationship('Meal', back_populates='category')
 
@@ -60,8 +61,10 @@ class Meal(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
     price = Column(Float)
+    weight = Column(String(20))
     description = Column(String(300))
     category_id = Column(Integer, ForeignKey('categories.id'))
+    # photo_url = Column(String(255))
 
     category = relationship('Category', back_populates='meals')
 
@@ -89,3 +92,53 @@ Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session()
 
+
+def fill_initial_data():
+    categories = [
+        Category(
+            name='Завтраки',
+            description='Сытние и полезные завтраки'
+            # photo_url = ''
+        ),
+        Category(
+            name='Обеды',
+            description='Горячие блюда на обед'
+            # photo_url = ''
+        ),
+        Category(
+            name='Напитки',
+            description='Прохладительные и горячие напитки'
+            # photo_url = ''
+        )
+    ]
+
+    meals = [
+        Meal(
+            name='Омлет с ветчиной',
+            price=200,
+            description='Вкусный омлет с ветчиной',
+            weight='250 г',
+            category=categories[0]
+            # photo_url = ''
+        ),
+
+        Meal(
+            name='Суп том-ям',
+            price=400,
+            description='Острый суп том-ям с креветками',
+            weight='350 мл',
+            category=categories[1]
+            # photo_url = ''
+        ),
+
+        Meal(
+            name='Американо',
+            price=200,
+            description='Кофе американо',
+            weight='300 мл',
+            category=categories[2]
+        # photo_url = ''
+    ]
+
+    session.add_all(categories + meals)
+    session.commit()
