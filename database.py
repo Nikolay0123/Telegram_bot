@@ -4,8 +4,6 @@ from datetime import datetime
 from sqlalchemy import ForeignKey
 
 
-
-
 class Base(DeclarativeBase):
     pass
 
@@ -137,8 +135,30 @@ def fill_initial_data():
             description='Кофе американо',
             weight='300 мл',
             category=categories[2]
-        # photo_url = ''
-    ]
+            # photo_url = ''
+        )]
 
     session.add_all(categories + meals)
     session.commit()
+
+    # модели нужно импортировать из моделей
+
+
+class DBController:
+    def __init__(self, con_str):
+        self.engine = create_engine(con_str)
+        Session = sessionmaker(bind=engine)
+        self.session = Session()
+
+
+    def create_all_tables(self):
+        Base.metadata.create_all(engine)
+
+
+    def get_user_by_id(self, telegram_id):
+        pass
+
+
+    def create_user(self, tg_id, username, first_name, last_name):
+        pass
+db_controller = DBController('sqlite:///restaurant_bot.db')
