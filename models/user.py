@@ -1,6 +1,6 @@
 from sqlalchemy import Column, BigInteger, String, DateTime, Boolean, Integer
 from datetime import datetime
-from database import Base
+from models.base import Base
 
 
 class User(Base):
@@ -15,3 +15,6 @@ class User(Base):
     phone = Column(String(20), nullable=True)
     is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<User(id={self.id}, username={self.username}>"
