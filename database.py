@@ -13,7 +13,7 @@ def fill_initial_data():
     categories = [
         Category(
             name='Завтраки',
-            description='Сытние и полезные завтраки'
+            description='Сытные и полезные завтраки'
             # photo_url = ''
         ),
         Category(
@@ -56,8 +56,8 @@ def fill_initial_data():
             # photo_url = ''
         )]
 
-    session.add_all(categories + meals)
-    session.commit()
+    # session.add_all(categories + meals)
+    # session.commit()
 
 
 class DBController:
@@ -71,15 +71,22 @@ class DBController:
     def get_user_by_id(self, telegram_id):
         session = self.Session()
         user = session.query(User).filter_by(telegram_id=telegram_id).first()
-        session.close()
         return user
 
-    def create_user(self, telegram_id, username, first_name, last_name):
+    def create_user_with_cart(self, telegram_id, username, first_name, last_name, phone):
         session = self.Session()
-        user = User(telegram_id=telegram_id, username=username, first_name=first_name, last_name=last_name)
+        user = User(telegram_id=telegram_id,
+                    username=username,
+                    first_name=first_name,
+                    last_name=last_name,
+                    phone=phone)
         session.add(user)
         session.commit()
-        session.close()
+        cart = Cart(user_id=user.id)
+        print(user.id)
+        session.add(cart)
+        session.commit()
 
 
 db_controller = DBController('sqlite:///restaurant_bot.db')
+db_controller.create_all_tables()
