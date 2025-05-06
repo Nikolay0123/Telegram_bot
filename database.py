@@ -9,55 +9,7 @@ from models import Base, Cart, CartMeal, Category, Meal, Order, User
 # category = relationship('Category', back_populates='meals')
 
 
-def fill_initial_data():
-    categories = [
-        Category(
-            name='Завтраки',
-            description='Сытные и полезные завтраки'
-            # photo_url = ''
-        ),
-        Category(
-            name='Обеды',
-            description='Горячие блюда на обед'
-            # photo_url = ''
-        ),
-        Category(
-            name='Напитки',
-            description='Прохладительные и горячие напитки'
-            # photo_url = ''
-        )
-    ]
 
-    meals = [
-        Meal(
-            name='Омлет с ветчиной',
-            price=200,
-            description='Вкусный омлет с ветчиной',
-            weight='250 г',
-            category=categories[0]
-            # photo_url = ''
-        ),
-
-        Meal(
-            name='Суп том-ям',
-            price=400,
-            description='Острый суп том-ям с креветками',
-            weight='350 мл',
-            category=categories[1]
-            # photo_url = ''
-        ),
-
-        Meal(
-            name='Американо',
-            price=200,
-            description='Кофе американо',
-            weight='300 мл',
-            category=categories[2]
-            # photo_url = ''
-        )]
-
-    # session.add_all(categories + meals)
-    # session.commit()
 
 
 class DBController:
@@ -83,10 +35,70 @@ class DBController:
         session.add(user)
         session.commit()
         cart = Cart(user_id=user.id)
-        print(user.id)
         session.add(cart)
         session.commit()
 
+
+    def get_all_categories(self):
+        session = self.Session()
+        categories = session.query(Category).all()
+        return categories
+
+    def get_meals_by_category_id(self, category_id):
+        session = self.Session()
+        meals = session.query(Meal).filter_by(category_id=category_id).all()
+
+
+    def fill_initial_data(self):
+        session = self.Session()
+        categories = [
+            Category(
+                name='Завтраки',
+                description='Сытные и полезные завтраки'
+                # photo_url = ''
+            ),
+            Category(
+                name='Обеды',
+                description='Горячие блюда на обед'
+                # photo_url = ''
+            ),
+            Category(
+                name='Напитки',
+                description='Прохладительные и горячие напитки'
+                # photo_url = ''
+            )
+        ]
+
+        meals = [
+            Meal(
+                name='Омлет с ветчиной',
+                price=200,
+                description='Вкусный омлет с ветчиной',
+                weight='250 г',
+                category=categories[0]
+                # photo_url = ''
+            ),
+
+            Meal(
+                name='Суп том-ям',
+                price=400,
+                description='Острый суп том-ям с креветками',
+                weight='350 мл',
+                category=categories[1]
+                # photo_url = ''
+            ),
+
+            Meal(
+                name='Американо',
+                price=200,
+                description='Кофе американо',
+                weight='300 мл',
+                category=categories[2]
+                # photo_url = ''
+            )]
+
+        session.add_all(categories + meals)
+        session.commit()
 
 db_controller = DBController('sqlite:///restaurant_bot.db')
 db_controller.create_all_tables()

@@ -38,5 +38,16 @@ async def get_phone(message: Message, state: FSMContext):
                    username=message.from_user.username,
                    phone=phone)
 
-    await message.answer('Регистрация успешно завершена!', reply_markup=ReplyKeyboardRemove())
+    welcome_text = """
+                Регистрация успешно завершена!
+
+                Вот список доступных команд:
+                /menu - Показать меню
+                /cart - Показать корзину
+                /orders - Показать историю заказов
+                /help - Связаться с нашим менеджером
+
+                Выберите действие или нажмите на кнопку ниже:
+                """
+    await message.answer(welcome_text, reply_markup=kb.main_menu)
     await state.clear()

@@ -2,8 +2,8 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMar
 
 main_menu = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Меню')],
                                           [KeyboardButton(text='Корзина')],
-                                           [KeyboardButton(text='Контакты'),
-                                KeyboardButton(text='О нас')]], resize_keyboard=True,
+                                          [KeyboardButton(text='Мои заказы')],
+                                          [KeyboardButton(text='Связаться с нами')]], resize_keyboard=True,
                                 input_field_placeholder="Выберите пункт меню")
 
 menu = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Горячие блюда', callback_data='hot meals')],
