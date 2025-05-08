@@ -9,9 +9,6 @@ from models import Base, Cart, CartMeal, Category, Meal, Order, User
 # category = relationship('Category', back_populates='meals')
 
 
-
-
-
 class DBController:
     def __init__(self, con_str):
         self.engine = create_engine(con_str)
@@ -44,9 +41,18 @@ class DBController:
         categories = session.query(Category).all()
         return categories
 
+
     def get_meals_by_category_id(self, category_id):
         session = self.Session()
         meals = session.query(Meal).filter_by(category_id=category_id).all()
+        return meals
+
+
+    def show_meals_page(self, category_id, offset, limit):
+        session = self.Session()
+
+
+    def get_meal_count_by_category(self, category_id):
 
 
     def fill_initial_data(self):
@@ -99,6 +105,7 @@ class DBController:
 
         session.add_all(categories + meals)
         session.commit()
+
 
 db_controller = DBController('sqlite:///restaurant_bot.db')
 db_controller.create_all_tables()

@@ -1,11 +1,6 @@
 from aiogram import Router, F
-from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State, StatesGroup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-
-import keyboards as kb
 
 from database import db_controller as db
 
@@ -20,9 +15,23 @@ async def show_categories(message: Message):
     for category in categories:
         builder.button(text=category.name, callback_data=f'category_{category.id}')
 
+        if category.image_url:
+            await message.answer_photo(
+                photo=category.image_url,
+                text=f"<b>{category.name}</b>\n{category.description}",
+                parse_mode='HTML',
+                reply_markup=builder.as_markup(resize_keyboard=True)
+            )
+        else:
+            await message.answer(
+                text=f"<b>{category.name}</b>\n{category.description}",
+                parse_mode='HTML',
+                reply_markup=builder.as_markup(resize_keyboard=True)
+            )
+
     builder.adjust(1)
 
-    await message.answer('Выберите категорию:', reply_markup=builder.as_markup(resize_keyboard=True))
+def gen_keyboard():
 
 
 @router.callback_query(F.data.startswith('category_'))
@@ -32,7 +41,10 @@ async def show_meals(callback: CallbackQuery):
 
     builder = InlineKeyboardBuilder()
     for meal in meals:
-        # builder.button(text=meal.name, callback_data=f'meal_{meal.id}')
+        builder.button(text=meal.name, callback_data=f'meal_{meal.id}')
+
+        if meal.image_url:
+
 
 #
 #

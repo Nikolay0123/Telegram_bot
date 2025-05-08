@@ -13,6 +13,6 @@ class Meal(Base):
     weight = Column(String(20))
     description = Column(String(300))
     category_id = Column(Integer, ForeignKey('categories.id'))
-    # photo_url = Column(String(255))
+    image_url = Column(String(255))
 
     # category = relationship('Category', back_populates='meals')
