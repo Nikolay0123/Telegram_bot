@@ -1,4 +1,8 @@
+import math
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.filters.callback_data import CallbackData
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 main_menu = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Меню')],
                                           [KeyboardButton(text='Корзина')],
@@ -15,3 +19,31 @@ menu = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Гор�
                                              [InlineKeyboardButton(text='Японская кухня', callback_data='japanese')]])
 
 get_number = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Отправить номер', request_contact=True)]], resize_keyboard=True)
+
+
+class MealArrowCallback(CallbackData, siffix='meal_arrow'):
+    page: int
+    action: str
+    category_id: int
+
+def create_menu_kb_by_category(db_controller, category_id, page, page_size=4):
+    count = db_controller.get_meal_count_by_category(category_id)
+    max_page = math.ceil(count / page_size)
+    if page > max_page:
+        page = 1
+    if page < 1:
+        page = max_page
+    limit = page_size
+    offset = (page - 1) * page_size + 1
+    meals = db_controller.get_meals_slice(category_id, offset, limit)
+    builder = InlineKeyboardBuilder()
+    for meal in meals:
+        builder.add()
+
+    builder.button(
+        text='<<', callback_data=MealArrowCallback(page=page, action='prev', category_id=category_id)
+    )
+    builder.button(
+        text='>>', callback_data=MealArrowCallback(page=page, action='next', category_id=category_id)
+    )
+    # потом наддо прикрепить стрелки

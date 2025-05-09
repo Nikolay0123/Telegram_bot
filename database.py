@@ -1,6 +1,7 @@
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select, func
 from models import Base, Cart, CartMeal, Category, Meal, Order, User
+from typing import Tuple
 
 
 # user = relationship('User', back_populates='orders')
@@ -48,12 +49,21 @@ class DBController:
         return meals
 
 
-    def show_meals_page(self, category_id, offset, limit):
+    def get_meals_slice(self, category_id, offset, limit):
         session = self.Session()
+        page = 0
+        page_size = 3
+        total_meals = func.count(Meal.id).where(Meal.category_id == category_id)
+        total_pages = (int(total_meals) + page_size - 1) // page_size
+        meals = (Meal.where(Meal.category_id == category_id).order_by(Meal.name).offset(page * page_size).
+                 limit(page_size))
+
+        return meals, total_meals, total_pages
+
 
 
     def get_meal_count_by_category(self, category_id):
-
+        ...
 
     def fill_initial_data(self):
         session = self.Session()
@@ -81,7 +91,72 @@ class DBController:
                 price=200,
                 description='Вкусный омлет с ветчиной',
                 weight='250 г',
-                category=categories[0]
+                category_id=categories[0].id
+                # photo_url = ''
+            ),
+
+            Meal(
+                name='Омлет с ветчиной',
+                price=200,
+                description='Вкусный омлет с ветчиной',
+                weight='250 г',
+                category_id=categories[0].id
+                # photo_url = ''
+            ),
+            Meal(
+                name='Омлет с ветчиной',
+                price=200,
+                description='Вкусный омлет с ветчиной',
+                weight='250 г',
+                category_id=categories[0].id
+                # photo_url = ''
+            ),
+            Meal(
+                name='Омлет с ветчиной',
+                price=200,
+                description='Вкусный омлет с ветчиной',
+                weight='250 г',
+                category_id=categories[0].id
+                # photo_url = ''
+            ),
+            Meal(
+                name='Омлет с ветчиной',
+                price=200,
+                description='Вкусный омлет с ветчиной',
+                weight='250 г',
+                category_id=categories[0].id
+                # photo_url = ''
+            ),
+            Meal(
+                name='Омлет с ветчиной',
+                price=200,
+                description='Вкусный омлет с ветчиной',
+                weight='250 г',
+                category_id=categories[0].id
+                # photo_url = ''
+            ),
+            Meal(
+                name='Омлет с ветчиной',
+                price=200,
+                description='Вкусный омлет с ветчиной',
+                weight='250 г',
+                category_id=categories[0].id
+                # photo_url = ''
+            ),
+            Meal(
+                name='Омлет с ветчиной',
+                price=200,
+                description='Вкусный омлет с ветчиной',
+                weight='250 г',
+                category_id=categories[0].id
+                # photo_url = ''
+            ),
+            Meal(
+                name='Омлет с ветчиной',
+                price=200,
+                description='Вкусный омлет с ветчиной',
+                weight='250 г',
+                category_id=categories[0].id
                 # photo_url = ''
             ),
 
@@ -90,7 +165,7 @@ class DBController:
                 price=400,
                 description='Острый суп том-ям с креветками',
                 weight='350 мл',
-                category=categories[1]
+                category_id=categories[1].id
                 # photo_url = ''
             ),
 
@@ -99,7 +174,7 @@ class DBController:
                 price=200,
                 description='Кофе американо',
                 weight='300 мл',
-                category=categories[2]
+                category_id=categories[2].id
                 # photo_url = ''
             )]
 
