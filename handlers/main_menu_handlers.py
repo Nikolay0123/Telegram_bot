@@ -36,35 +36,9 @@ async def show_categories(message: Message):
 
 @router.callback_query(F.data.startswith('category_'))
 async def show_meals(callback: CallbackQuery):
-    category_id = int(callback.data.split('_')[1])
-    page = 0
+    cat_id = int(callback.data.split('_')[1])
 
-    meals, total_meals, total_pages = db.show_meals_page(category_id=category_id,
-                                                         page_size=3,
-                                                         page=page)
-
-    message_text = '\n\n'.join(
-        f"<b>{meal.name}</b>\n"
-        f"{meal.weight} | {meal.price} руб. \n"
-        f"{meal.description}"
-        for meal in meals
-    )
-
-    builder = InlineKeyboardBuilder()
-
-    if page > 0:
-        builder.button(text="назад", callback_data=f"category_{category_id}_{page-1}")
-
-    if page < total_pages - 1:
-        builder.button(text='вперед', callback_data=f"category_{category_id}_{page+1}")
-
-    for meal in meals:
-        builder.button(text=f"{meal.name}",
-                       callback_data=f'add_{meal.id}')
-
-    builder.adjust(2,2)
-
-    await callback.answer()
+    await callback.message.answer(text='Еда', reply_markup=create_menu_kb_by_category(db, cat_id, page=1))
 
     # await callback.message.edit_text(
     #     text=message_text,
@@ -73,7 +47,7 @@ async def show_meals(callback: CallbackQuery):
     # )
 
 @router.callback_query(MealArrowCallback.filter())
-def callback_for_meal_arrows(callback: CallbackQuery, callback_data: dict):
+async def callback_for_meal_arrows(callback: CallbackQuery, callback_data: dict):
     page = callback_data['page']
     action = callback_data['action']
     category_id = callback_data['category_id']
@@ -83,7 +57,7 @@ def callback_for_meal_arrows(callback: CallbackQuery, callback_data: dict):
     else:
         page -= 1
 
-    reply_markup = create_menu_kb_by_category(db, category_id, page)
+    await callback.message.edit_reply_markup(reply_markup=create_menu_kb_by_category(db, category_id, page))
 
 #
 #

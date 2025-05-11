@@ -1,8 +1,6 @@
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, select, func
+from sqlalchemy import create_engine,  func
 from models import Base, Cart, CartMeal, Category, Meal, Order, User
-from typing import Tuple
-
 
 # user = relationship('User', back_populates='orders')
 # User.orders = relationship('Order', back_populates='user')\
@@ -36,34 +34,25 @@ class DBController:
         session.add(cart)
         session.commit()
 
-
     def get_all_categories(self):
         session = self.Session()
         categories = session.query(Category).all()
         return categories
-
 
     def get_meals_by_category_id(self, category_id):
         session = self.Session()
         meals = session.query(Meal).filter_by(category_id=category_id).all()
         return meals
 
-
     def get_meals_slice(self, category_id, offset, limit):
         session = self.Session()
-        page = 0
-        page_size = 3
-        total_meals = func.count(Meal.id).where(Meal.category_id == category_id)
-        total_pages = (int(total_meals) + page_size - 1) // page_size
-        meals = (Meal.where(Meal.category_id == category_id).order_by(Meal.name).offset(page * page_size).
-                 limit(page_size))
-
-        return meals, total_meals, total_pages
-
-
+        meals_slice = session.query(Meal).filter_by(category_id=category_id).offset(offset).limit(limit).all()
+        return meals_slice
 
     def get_meal_count_by_category(self, category_id):
-        ...
+        session = self.Session()
+        meal_count = session.query(func.count(Meal.id)).filter_by(category_id=category_id).scalar()
+        return meal_count
 
     def fill_initial_data(self):
         session = self.Session()
