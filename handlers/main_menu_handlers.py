@@ -46,11 +46,20 @@ async def show_meals(callback: CallbackQuery):
     #     parse_mode='HTML'
     # )
 
+
+@router.callback_query(F.data.startswith('meal_'))
+async def add_meal_to_cart(callback: CallbackQuery):
+    meal_id = int(callback.data.split('_')[1])
+    quantity = 1
+    db.add_meal_to_cart(callback.from_user.id, meal_id, quantity)
+
+    await callback.message.answer(text=f'{meal.name}')
+
 @router.callback_query(MealArrowCallback.filter())
-async def callback_for_meal_arrows(callback: CallbackQuery, callback_data: dict):
-    page = callback_data['page']
-    action = callback_data['action']
-    category_id = callback_data['category_id']
+async def callback_for_meal_arrows(callback: CallbackQuery, callback_data:  MealArrowCallback):
+    page = callback_data.page
+    action = callback_data.action
+    category_id = callback_data.category_id
 
     if action == 'next':
         page += 1

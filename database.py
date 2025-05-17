@@ -54,7 +54,22 @@ class DBController:
         meal_count = session.query(func.count(Meal.id)).filter_by(category_id=category_id).scalar()
         return meal_count
 
-    def fill_initial_data(self):
+    def add_meal_to_cart(self, user_id, meal_id, quantity):
+        session = self.Session()
+        cart_meal = session.query(CartMeal).filter_by(user_id=user_id, meal_id=meal_id).first()
+
+        if cart_meal:
+            cart_meal.quantity += quantity
+        else:
+            new_meal = CartMeal(
+                user_id=user_id,
+                meal_id=meal_id,
+                quantity=quantity
+            )
+            session.add(new_meal)
+        session.commit()
+
+    def fill_categories(self):
         session = self.Session()
         categories = [
             Category(
@@ -74,6 +89,12 @@ class DBController:
             )
         ]
 
+        session.add_all(categories)
+        session.commit()
+
+    def fill_meals(self):
+        session = self.Session()
+        categories = db_controller.get_all_categories()
         meals = [
             Meal(
                 name='Омлет с ветчиной',
@@ -167,7 +188,7 @@ class DBController:
                 # photo_url = ''
             )]
 
-        session.add_all(categories + meals)
+        session.add_all(meals)
         session.commit()
 
 

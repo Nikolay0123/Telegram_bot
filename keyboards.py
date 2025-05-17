@@ -41,7 +41,7 @@ def create_menu_kb_by_category(db_controller, category_id, page, page_size=4):
     print(meals)
     for meal in meals:
         print(meal.name)
-        builder.button(text=meal.name, callback_data='meal_id')
+        builder.button(text=meal.name, callback_data=f'meal_{meal.id}')
 
     builder.button(
         text='<<', callback_data=MealArrowCallback(page=page, action='prev', category_id=category_id)
