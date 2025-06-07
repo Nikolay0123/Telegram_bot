@@ -21,7 +21,8 @@ async def main():
     # dp["started_at"] = datetime.now().strftime("%Y-%m-%d %H:%M")
     dp.include_router(user_router)
     dp.include_router(main_menu_router)
-    db.fill_initial_data()
+    db.fill_categories()
+    db.fill_meals()
     await dp.start_polling(bot)
 
 

@@ -54,7 +54,25 @@ class DBController:
         meal_count = session.query(func.count(Meal.id)).filter_by(category_id=category_id).scalar()
         return meal_count
 
-    def fill_initial_data(self):
+    def meal_card(self, meal_id):
+        session = self.Session()
+        meal = session.query(Meal).filter_by(id=meal_id).scalar()
+        return meal
+
+    def menu_meal_card(self):
+        pass
+    def cart_meal_card(self):
+        pass
+
+
+    def add_to_cart(self, user_id, dish_id, quantity=1):
+        session = self.Session()
+        cart = session.select(Cart).where(Cart.user_id == user_id)
+        if not cart:
+            cart = Cart(user_id=user_id)
+            session.add(cart)
+
+    def fill_categories(self):
         session = self.Session()
         categories = [
             Category(
@@ -74,6 +92,12 @@ class DBController:
             )
         ]
 
+        session.add_all(categories)
+        session.commit()
+
+    def fill_meals(self):
+        session = self.Session()
+        categories = db_controller.get_all_categories()
         meals = [
             Meal(
                 name='Омлет с ветчиной',
@@ -85,7 +109,7 @@ class DBController:
             ),
 
             Meal(
-                name='Омлет с ветчиной',
+                name='Творожные блинчики',
                 price=200,
                 description='Вкусный омлет с ветчиной',
                 weight='250 г',
@@ -93,7 +117,7 @@ class DBController:
                 # photo_url = ''
             ),
             Meal(
-                name='Омлет с ветчиной',
+                name='Кабачковые маффины',
                 price=200,
                 description='Вкусный омлет с ветчиной',
                 weight='250 г',
@@ -101,7 +125,7 @@ class DBController:
                 # photo_url = ''
             ),
             Meal(
-                name='Омлет с ветчиной',
+                name='Сырники',
                 price=200,
                 description='Вкусный омлет с ветчиной',
                 weight='250 г',
@@ -109,7 +133,7 @@ class DBController:
                 # photo_url = ''
             ),
             Meal(
-                name='Омлет с ветчиной',
+                name='Овсяные оладьи',
                 price=200,
                 description='Вкусный омлет с ветчиной',
                 weight='250 г',
@@ -117,7 +141,7 @@ class DBController:
                 # photo_url = ''
             ),
             Meal(
-                name='Омлет с ветчиной',
+                name='Пшенная каша',
                 price=200,
                 description='Вкусный омлет с ветчиной',
                 weight='250 г',
@@ -125,7 +149,7 @@ class DBController:
                 # photo_url = ''
             ),
             Meal(
-                name='Омлет с ветчиной',
+                name='Банановые панкейки',
                 price=200,
                 description='Вкусный омлет с ветчиной',
                 weight='250 г',
@@ -133,7 +157,7 @@ class DBController:
                 # photo_url = ''
             ),
             Meal(
-                name='Омлет с ветчиной',
+                name='Творожная запеканка',
                 price=200,
                 description='Вкусный омлет с ветчиной',
                 weight='250 г',
@@ -141,7 +165,7 @@ class DBController:
                 # photo_url = ''
             ),
             Meal(
-                name='Омлет с ветчиной',
+                name='Вареники',
                 price=200,
                 description='Вкусный омлет с ветчиной',
                 weight='250 г',
@@ -167,7 +191,7 @@ class DBController:
                 # photo_url = ''
             )]
 
-        session.add_all(categories + meals)
+        session.add_all(meals)
         session.commit()
 
 

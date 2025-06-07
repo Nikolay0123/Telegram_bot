@@ -37,9 +37,7 @@ async def show_categories(message: Message):
 @router.callback_query(F.data.startswith('category_'))
 async def show_meals(callback: CallbackQuery):
     cat_id = int(callback.data.split('_')[1])
-
     await callback.message.answer(text='Еда', reply_markup=create_menu_kb_by_category(db, cat_id, page=1))
-
     # await callback.message.edit_text(
     #     text=message_text,
     #     reply_markup=builder.as_markup(),
@@ -47,10 +45,10 @@ async def show_meals(callback: CallbackQuery):
     # )
 
 @router.callback_query(MealArrowCallback.filter())
-async def callback_for_meal_arrows(callback: CallbackQuery, callback_data: dict):
-    page = callback_data['page']
-    action = callback_data['action']
-    category_id = callback_data['category_id']
+async def callback_for_meal_arrows(callback: CallbackQuery, callback_data: MealArrowCallback):
+    page = callback_data.page
+    action = callback_data.action
+    category_id = callback_data.category_id
 
     if action == 'next':
         page += 1
@@ -59,6 +57,16 @@ async def callback_for_meal_arrows(callback: CallbackQuery, callback_data: dict)
 
     await callback.message.edit_reply_markup(reply_markup=create_menu_kb_by_category(db, category_id, page))
 
+@router.callback_query(F.data.startswith('meal_'))
+async def show_meal_card(callback: CallbackQuery):
+    meal_id = int(callback.data.split('_')[1])
+    meal = db.meal_card(meal_id)
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Добавить в корзину', callback_data=f'cart_meal_{meal_id}')
+    await callback.message.edit_text(
+        text=f"<b>{meal.name}</b>\n<b>{meal.description}</b>\n<b>{meal.weight}</b>{meal.price}",
+        parse_mode='HTML',
+        reply_markup=builder.as_markup(resize_keyboard=True))
 #
 #
 # @router.message(F.text == 'Корзина'):
