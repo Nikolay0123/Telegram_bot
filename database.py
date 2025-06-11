@@ -54,23 +54,21 @@ class DBController:
         meal_count = session.query(func.count(Meal.id)).filter_by(category_id=category_id).scalar()
         return meal_count
 
-    def meal_card(self, meal_id):
+    def get_meal(self, meal_id):
         session = self.Session()
         meal = session.query(Meal).filter_by(id=meal_id).scalar()
         return meal
 
-    def menu_meal_card(self):
-        pass
-    def cart_meal_card(self):
-        pass
-
-
-    def add_to_cart(self, user_id, dish_id, quantity=1):
+    def add_to_cart(self, user_id, meal_id, quantity=1):
         session = self.Session()
-        cart = session.select(Cart).where(Cart.user_id == user_id)
-        if not cart:
-            cart = Cart(user_id=user_id)
-            session.add(cart)
+        cart = session.query(Cart).filter_by(user_id=user_id).first()
+        add_meal = CartMeal(cart_id=cart.id,
+                            meal_id=meal_id,
+                            quantity=quantity)
+        session.add(add_meal)
+        # if not cart:
+        #     cart = Cart(user_id=user_id)
+        #     session.add(cart)
 
     def fill_categories(self):
         session = self.Session()

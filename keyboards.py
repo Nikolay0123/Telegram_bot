@@ -50,3 +50,9 @@ def create_menu_kb_by_category(db_controller, category_id, page, page_size=4):
 
     return builder.as_markup()
 
+
+def meal_keyboard(meal):
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Добавить в корзину', callback_data=f'cart_meal_{meal.id}')
+    builder.button(text='Назад', callback_data=f'back_{meal.category_id}')
+    return builder
