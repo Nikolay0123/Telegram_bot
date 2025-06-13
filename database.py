@@ -61,7 +61,7 @@ class DBController:
 
     def add_to_cart(self, user_id, meal_id, quantity=1):
         session = self.Session()
-        cart = session.query(Cart).filter_by(user_id=user_id).first()
+        cart = session.query(Cart).filter_by(user_id=user_id).scalar()
         add_meal = CartMeal(cart_id=cart.id,
                             meal_id=meal_id,
                             quantity=quantity)

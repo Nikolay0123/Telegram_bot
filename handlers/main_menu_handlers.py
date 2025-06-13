@@ -1,6 +1,6 @@
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 from keyboards import MealArrowCallback, create_menu_kb_by_category, meal_keyboard
 from database import db_controller as db
 
@@ -13,7 +13,9 @@ async def show_categories(message: Message):
 
     for category in categories:
         builder = InlineKeyboardBuilder()
-        builder.button(text=category.name, callback_data=f'category_{category.id}')
+        builder.row(InlineKeyboardButton(text=category.name,
+                                         callback_data=f'category_{category.id}'), width=6)
+        # builder.button(text=category.name, callback_data=f'category_{category.id}')
 
         # if category.image_url:
         #     await message.answer_photo(
@@ -23,13 +25,13 @@ async def show_categories(message: Message):
         #         reply_markup=builder.as_markup(resize_keyboard=True)
         #     )
         # else:
-        await message.answer(
-                text=f"<b>{category.name}</b>\n{category.description}",
-                parse_mode='HTML',
-                reply_markup=builder.as_markup(resize_keyboard=True)
-            )
 
-    builder.adjust(2)
+        await message.answer(
+            text=f"<b>{category.name}</b>\n{category.description}",
+            parse_mode='HTML',
+            reply_markup=builder.as_markup(resize_keyboard=True)
+        )
+
 
 # def gen_keyboard():
 
@@ -37,8 +39,8 @@ async def show_categories(message: Message):
 @router.callback_query(F.data.startswith('category_'))
 async def show_meals(callback: CallbackQuery):
     cat_id = int(callback.data.split('_')[1])
-    await callback.message.answer(text='Еда', reply_markup=create_menu_kb_by_category(db, cat_id, page=1).
-                                  as_markup(resize_keyboard=True))
+    await callback.message.answer(text='Еда', reply_markup=create_menu_kb_by_category(db, cat_id, page=1),
+                                  resize_keyboard=True)
     # await callback.message.edit_text(
     #     text=message_text,
     #     reply_markup=builder.as_markup(),
@@ -56,8 +58,8 @@ async def callback_for_meal_arrows(callback: CallbackQuery, callback_data: MealA
     else:
         page -= 1
 
-    await callback.message.edit_reply_markup(reply_markup=create_menu_kb_by_category(db, category_id, page).
-                                             as_markup(resize_keyboard=True))
+    await callback.message.edit_reply_markup(reply_markup=create_menu_kb_by_category(db, category_id, page),
+                                             resize_keyboard=True)
 
 
 def get_meal_card_text(meal):
@@ -84,15 +86,16 @@ async def show_meal_card(callback: CallbackQuery):
 @router.callback_query(F.data.startswith('back_'))
 async def back_to_meals_by_category(callback: CallbackQuery):
     cat_id = int(callback.data.split('_')[1])
-    await callback.message.answer(text='Еда', reply_markup=create_menu_kb_by_category(db, cat_id, page=1).
-                                  as_markup(resize_keyboard=True))
+    await callback.message.answer(text='Еда', reply_markup=create_menu_kb_by_category(db, cat_id, page=1),
+                                  resize_keyboard=True)
 
 
-@router.callback_query(F.data.startswith('cart_meal_'))
-async def add_meal_to_card(callback: CallbackQuery):
+@router.callback_query(F.data.startswith('CartMeal_'))
+async def add_meal_to_cart(callback: CallbackQuery):
     meal_id = int(callback.data.split('_')[1])
     meal = db.get_meal(meal_id)
-    db.add_to_cart(callback.from_user.id, meal_id)
+    user = db.get_user_by_id(callback.from_user.id)
+    db.add_to_cart(user.id, meal_id)
     await callback.answer(text=f'{meal.name} добавлено в корзину!')
 
 

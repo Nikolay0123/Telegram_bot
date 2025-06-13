@@ -38,21 +38,28 @@ def create_menu_kb_by_category(db_controller, category_id, page, page_size=4):
     offset = (page - 1) * page_size + 1
     meals = db_controller.get_meals_slice(category_id, offset, limit)
     builder = InlineKeyboardBuilder()
+    btns = list()
     for meal in meals:
-        builder.button(text=meal.name, callback_data=f'meal_{meal.id}')
+        btns.append(InlineKeyboardButton(text=meal.name, callback_data=f'meal_{meal.id}'))
+    builder.row(*btns, width=2)
+    builder.adjust(2)
 
-    builder.button(
-        text='<<', callback_data=MealArrowCallback(page=page, action='prev', category_id=category_id)
-    )
-    builder.button(
-        text='>>', callback_data=MealArrowCallback(page=page, action='next', category_id=category_id)
-    )
+    # builder.row(InlineKeyboardButton(text=meal.name, callback_data=f'meal_{meal.id}'), width=2)
+
+    builder.row(InlineKeyboardButton(
+        text='<<', callback_data=MealArrowCallback(page=page, action='prev', category_id=category_id).pack()),
+        InlineKeyboardButton(
+            text='>>', callback_data=MealArrowCallback(page=page, action='next', category_id=category_id).pack()),
+        width=2)
+    # builder.button(
+    #     text='>>', callback_data=MealArrowCallback(page=page, action='next', category_id=category_id)
+    # )
 
     return builder.as_markup()
 
 
 def meal_keyboard(meal):
     builder = InlineKeyboardBuilder()
-    builder.button(text='Добавить в корзину', callback_data=f'cart_meal_{meal.id}')
+    builder.button(text='Добавить в корзину', callback_data=f'CartMeal_{meal.id}')
     builder.button(text='Назад', callback_data=f'back_{meal.category_id}')
     return builder
