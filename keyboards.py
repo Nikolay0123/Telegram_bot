@@ -62,4 +62,8 @@ def meal_keyboard(meal):
     builder = InlineKeyboardBuilder()
     builder.button(text='Добавить в корзину', callback_data=f'CartMeal_{meal.id}')
     builder.button(text='Назад', callback_data=f'back_{meal.category_id}')
+    builder.button(text='Перейти в корзину', callback_data='cart')
     return builder
+
+
+

@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer
 from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
+
 from models.base import Base
 
 
@@ -11,3 +13,6 @@ class CartMeal(Base):
     cart_id = Column(Integer, ForeignKey('cart.id'))
     meal_id = Column(Integer, ForeignKey('meals.id'))
     quantity = Column(Integer, default=1)
+
+    meal = relationship('Meal')
+    cart = relationship('Cart')

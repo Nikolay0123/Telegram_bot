@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 from keyboards import MealArrowCallback, create_menu_kb_by_category, meal_keyboard
+from aiogram.filters import Command
 from database import db_controller as db
 
 router = Router()
@@ -33,7 +34,20 @@ async def show_categories(message: Message):
         )
 
 
-# def gen_keyboard():
+@router.message(Command('menu'))
+async def command_menu(message: Message):
+    categories = db.get_all_categories()
+
+    for category in categories:
+        builder = InlineKeyboardBuilder()
+        builder.row(InlineKeyboardButton(text=category.name,
+                                         callback_data=f'category_{category.id}'), width=6)
+
+        await message.answer(
+            text=f"<b>{category.name}</b>\n{category.description}",
+            parse_mode='HTML',
+            reply_markup=builder.as_markup(resize_keyboard=True)
+        )
 
 
 @router.callback_query(F.data.startswith('category_'))
@@ -46,6 +60,7 @@ async def show_meals(callback: CallbackQuery):
     #     reply_markup=builder.as_markup(),
     #     parse_mode='HTML'
     # )
+
 
 @router.callback_query(MealArrowCallback.filter())
 async def callback_for_meal_arrows(callback: CallbackQuery, callback_data: MealArrowCallback):
@@ -97,6 +112,17 @@ async def add_meal_to_cart(callback: CallbackQuery):
     user = db.get_user_by_id(callback.from_user.id)
     db.add_to_cart(user.id, meal_id)
     await callback.answer(text=f'{meal.name} добавлено в корзину!')
+
+
+@router.callback_query(F.data.startswith('cart'))
+async def open_cart(callback: CallbackQuery):
+    user = db.get_user_by_id(callback.from_user.id)
+    cart_meals = db.get_users_cart(user.id)
+    for cart_meal in cart_meals:
+        meal = cart_meal.meal
+
+        print(meal.name)
+        await callback.message.answer(text=f'В Вашей корзине {meal.name} - {cart_meal.quantity} штук')
 
 
 

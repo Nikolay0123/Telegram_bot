@@ -6,6 +6,7 @@ from config_reader import config
 from aiogram.client.default import DefaultBotProperties
 from handlers.user_handlers import router as user_router
 from handlers.main_menu_handlers import router as main_menu_router
+from models import Base, Cart, CartMeal, Category, Meal, Order, User
 
 from database import db_controller as db
 
@@ -21,6 +22,7 @@ async def main():
     # dp["started_at"] = datetime.now().strftime("%Y-%m-%d %H:%M")
     dp.include_router(user_router)
     dp.include_router(main_menu_router)
+    db.create_all_tables()
     db.fill_categories()
     db.fill_meals()
     await dp.start_polling(bot)
