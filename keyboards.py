@@ -3,6 +3,7 @@ import math
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
+from database import db_controller
 
 main_menu = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Меню')],
                                           [KeyboardButton(text='Корзина')],
@@ -63,6 +64,12 @@ def meal_keyboard(meal):
     builder.button(text='Добавить в корзину', callback_data=f'CartMeal_{meal.id}')
     builder.button(text='Назад', callback_data=f'back_{meal.category_id}')
     builder.button(text='Перейти в корзину', callback_data='cart')
+    return builder
+
+
+def delete_from_cart(meal_id):
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Удалить из корзины', callback_data=f'delete_{meal_id}')
     return builder
 
 

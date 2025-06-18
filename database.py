@@ -86,6 +86,13 @@ class DBController:
                                 quantity=quantity)
             session.add(add_meal)
             session.commit()
+
+    def delete_meal_from_cart(self, user_id, meal_id):
+        session = self.Session()
+        cart = session.query(Cart).filter_by(user_id=user_id).scalar()
+        meal = session.query(CartMeal).filter_by(cart_id=cart.id, meal_id=meal_id).first()
+        session.delete(meal)
+        session.commit()
         # if not cart:
         #     cart = Cart(user_id=user_id)
         #     session.add(cart)

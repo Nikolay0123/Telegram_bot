@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
-from keyboards import MealArrowCallback, create_menu_kb_by_category, meal_keyboard
+from keyboards import MealArrowCallback, create_menu_kb_by_category, meal_keyboard, delete_from_cart
 from aiogram.filters import Command
 from database import db_controller as db
 
@@ -101,8 +101,8 @@ async def show_meal_card(callback: CallbackQuery):
 @router.callback_query(F.data.startswith('back_'))
 async def back_to_meals_by_category(callback: CallbackQuery):
     cat_id = int(callback.data.split('_')[1])
-    await callback.message.answer(text='Еда', reply_markup=create_menu_kb_by_category(db, cat_id, page=1),
-                                  resize_keyboard=True)
+    await callback.message.edit_text(text='Еда', reply_markup=create_menu_kb_by_category(db, cat_id, page=1),
+                                     resize_keyboard=True)
 
 
 @router.callback_query(F.data.startswith('CartMeal_'))
@@ -120,18 +120,30 @@ async def open_cart(callback: CallbackQuery):
     cart_meals = db.get_users_cart(user.id)
     for cart_meal in cart_meals:
         meal = cart_meal.meal
+        builder = InlineKeyboardBuilder()
+        builder.button(text='Удалить из корзины', callback_data=f'delete_{meal.id}')
+        await callback.message.answer(text=f'В Вашей корзине {meal.name} - {cart_meal.quantity} штук',
+                                      reply_markup=builder.as_markup())
 
-        print(meal.name)
-        await callback.message.answer(text=f'В Вашей корзине {meal.name} - {cart_meal.quantity} штук')
+
+@router.message(F.text == 'Корзина')
+async def show_cart(message: Message):
+    user = db.get_user_by_id(message.from_user.id)
+    cart_meals = db.get_users_cart(user.id)
+    for cart_meal in cart_meals:
+        meal = cart_meal.meal
+        await message.answer(text=f'В Вашей корзине {meal.name} - {cart_meal.quantity} штук')
 
 
+@router.callback_query(F.data.startswith('delete'))
+async def delete_from_cart(callback: CallbackQuery):
+    user = db.get_user_by_id(callback.from_user.id)
+    meal_id = int(callback.data.split('_')[1])
+    meal = db.get_meal(meal_id)
+    db.delete_meal_from_cart(user.id, meal_id)
+    await callback.answer(text=f'{meal.name} удалено из корзины!')
+    await callback.message.delete()
 
-#
-#
-# @router.message(F.text == 'Корзина'):
-# async def show_cart(message: Message):
-#
-#
 # @router.message(F.text == 'Мои заказы'):
 # async def show_orders(message: Message):
 #
