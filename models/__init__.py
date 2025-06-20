@@ -5,3 +5,4 @@ from .category import Category
 from .order import Order
 from .meal import Meal
 from .user import User
+from .order_meal import OrderMeal

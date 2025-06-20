@@ -118,21 +118,43 @@ async def add_meal_to_cart(callback: CallbackQuery):
 async def open_cart(callback: CallbackQuery):
     user = db.get_user_by_id(callback.from_user.id)
     cart_meals = db.get_users_cart(user.id)
-    for cart_meal in cart_meals:
-        meal = cart_meal.meal
-        builder = InlineKeyboardBuilder()
-        builder.button(text='Удалить из корзины', callback_data=f'delete_{meal.id}')
-        await callback.message.answer(text=f'В Вашей корзине {meal.name} - {cart_meal.quantity} штук',
-                                      reply_markup=builder.as_markup())
+    if not cart_meals:
+        await callback.message.answer(text='Ваша корзина пуста!')
+        await callback.message.delete()
+    else:
+        for cart_meal in cart_meals:
+            meal = cart_meal.meal
+            builder = InlineKeyboardBuilder()
+            builder.row(InlineKeyboardButton(text='Удалить из корзины', callback_data=f'delete_{meal.id}'),
+                        InlineKeyboardButton(text='Сделать заказ', callback_data='make_order'))
+            await callback.message.answer(text=f'В Вашей корзине {meal.name} - {cart_meal.quantity} штук',
+                                          reply_markup=builder.as_markup())
+
+
+@router.callback_query(F.data.startswith('make_order'))
+async def make_order(callback: CallbackQuery):
+    user = db.get_user_by_id(callback.from_user.id)
+    cart_meals = db.get_users_cart(user.id)
+
+    # else:
+    #     for cart_meal in cart_meals:
 
 
 @router.message(F.text == 'Корзина')
 async def show_cart(message: Message):
     user = db.get_user_by_id(message.from_user.id)
     cart_meals = db.get_users_cart(user.id)
-    for cart_meal in cart_meals:
-        meal = cart_meal.meal
-        await message.answer(text=f'В Вашей корзине {meal.name} - {cart_meal.quantity} штук')
+    if not cart_meals:
+        await message.answer(text='Ваша корзина пуста!')
+        await message.delete()
+    else:
+        for cart_meal in cart_meals:
+            meal = cart_meal.meal
+            builder = InlineKeyboardBuilder()
+            builder.row(InlineKeyboardButton(text='Удалить из корзины', callback_data=f'delete_{meal.id}'),
+                        InlineKeyboardButton(text='Сделать заказ', callback_data='make_order'))
+            await message.answer(text=f'В Вашей корзине {meal.name} - {cart_meal.quantity} штук',
+                                          reply_markup=builder.as_markup())
 
 
 @router.callback_query(F.data.startswith('delete'))

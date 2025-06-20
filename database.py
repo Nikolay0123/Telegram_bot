@@ -1,6 +1,6 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine,  func, inspect
-from models import Base, Cart, CartMeal, Category, Meal, Order, User
+from models import Base, Cart, CartMeal, Category, Meal, Order, User, OrderMeal
 
 # user = relationship('User', back_populates='orders')
 # User.orders = relationship('Order', back_populates='user')\
@@ -87,6 +87,21 @@ class DBController:
             session.add(add_meal)
             session.commit()
 
+    def create_order(self, user_id, meal_id, quantity):
+        session = self.Session()
+        cart = session.query(Cart).filter_by(user_id=user_id).first()
+        curr_meals = session.query(CartMeal).filter_by(cart_id=cart.id, meal_id=meal_id).all()
+        # create Order and save
+
+
+        for curr_meal in curr_meals:
+            count = curr_meal.quantity
+            # create OrderMeal for each curr_meal
+
+        count = session.query(CartMeal).filter_by(cart_id=cart.id, meal_id=curr_meal.id, quantity=quantity)
+        order = session.query(Order).filter_by(user_id=user_id).first()
+        order_meal = session.query(OrderMeal).filter_by(user_id=user_id).first()
+
     def delete_meal_from_cart(self, user_id, meal_id):
         session = self.Session()
         cart = session.query(Cart).filter_by(user_id=user_id).scalar()
@@ -100,8 +115,7 @@ class DBController:
     def get_users_cart(self, user_id):
         session = self.Session()
         cart = session.query(Cart).filter_by(user_id=user_id).first()
-        print(cart)
-        cart_meal = session.query(CartMeal).filter_by(cart_id=cart.id).all()
+        cart_meal = session.query(CartMeal).filter_by(cart_id=cart.id).scalar()
         return cart_meal
 
     def fill_categories(self):
