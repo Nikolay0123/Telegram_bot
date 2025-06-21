@@ -13,3 +13,5 @@ class OrderMeal(Base):
     order_id = Column(Integer, ForeignKey('orders.id'))
     meal_id = Column(Integer, ForeignKey('meals.id'))
     quantity = Column(Integer, default=1)
+
+    meal = relationship("Meal")

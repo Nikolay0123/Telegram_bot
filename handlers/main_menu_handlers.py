@@ -42,7 +42,6 @@ async def command_menu(message: Message):
         builder = InlineKeyboardBuilder()
         builder.row(InlineKeyboardButton(text=category.name,
                                          callback_data=f'category_{category.id}'), width=6)
-
         await message.answer(
             text=f"<b>{category.name}</b>\n{category.description}",
             parse_mode='HTML',
@@ -55,6 +54,7 @@ async def show_meals(callback: CallbackQuery):
     cat_id = int(callback.data.split('_')[1])
     await callback.message.answer(text='Еда', reply_markup=create_menu_kb_by_category(db, cat_id, page=1),
                                   resize_keyboard=True)
+
     # await callback.message.edit_text(
     #     text=message_text,
     #     reply_markup=builder.as_markup(),
@@ -131,10 +131,31 @@ async def open_cart(callback: CallbackQuery):
                                           reply_markup=builder.as_markup())
 
 
+def get_text_for_order_msg(meals):
+    order_text = 'Ваш заказ: \n\n'
+    total = 0
+    for curr_meal in meals:
+        # meal = db.get_meal(curr_meal.id)
+        order_text += (f'{curr_meal.meal.name} x {curr_meal.quantity} - '
+                       f'{curr_meal.meal.price * curr_meal.quantity} рублей\n')
+        total += curr_meal.meal.price * curr_meal.quantity
+
+    order_text += f'\n Итого: {total}'
+    return order_text
+
+
 @router.callback_query(F.data.startswith('make_order'))
 async def make_order(callback: CallbackQuery):
     user = db.get_user_by_id(callback.from_user.id)
-    cart_meals = db.get_users_cart(user.id)
+    order_id = db.create_order(user.id)
+    curr_meals = db.get_order_meals(order_id)
+    msg_text = get_text_for_order_msg(curr_meals)
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Заказ сделан!', callback_data='empty_plug')
+    await callback.message.answer(text=msg_text, reply_markup=builder.as_markup())
+    await callback.message.delete()
+    await callback.bot.send_message(6246523437, text='guufuu')
+
 
     # else:
     #     for cart_meal in cart_meals:

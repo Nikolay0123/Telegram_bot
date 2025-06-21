@@ -73,6 +73,10 @@ class DBController:
         meal = session.query(Meal).filter_by(id=meal_id).scalar()
         return meal
 
+
+
+
+
     def add_to_cart(self, user_id, meal_id, quantity=1):
         session = self.Session()
         cart = session.query(Cart).filter_by(user_id=user_id).scalar()
@@ -87,20 +91,33 @@ class DBController:
             session.add(add_meal)
             session.commit()
 
-    def create_order(self, user_id, meal_id, quantity):
+    def create_order(self, user_id):
         session = self.Session()
         cart = session.query(Cart).filter_by(user_id=user_id).first()
-        curr_meals = session.query(CartMeal).filter_by(cart_id=cart.id, meal_id=meal_id).all()
+        curr_meals = session.query(CartMeal).filter_by(cart_id=cart.id).all()
         # create Order and save
-
-
+        order = Order(user_id=user_id)
+        session.add(order)
+        session.commit()
         for curr_meal in curr_meals:
             count = curr_meal.quantity
+            order_meal = OrderMeal(order_id=order.id,
+                                   meal_id=curr_meal.meal.id,
+                                   quantity=count)
+            session.add(order_meal)
+        session.commit()
+        session.query(CartMeal).filter_by(cart_id=cart.id).delete()
+        session.commit()
+        return order.id
             # create OrderMeal for each curr_meal
 
-        count = session.query(CartMeal).filter_by(cart_id=cart.id, meal_id=curr_meal.id, quantity=quantity)
-        order = session.query(Order).filter_by(user_id=user_id).first()
-        order_meal = session.query(OrderMeal).filter_by(user_id=user_id).first()
+        # count = session.query(CartMeal).filter_by(cart_id=cart.id, meal_id=curr_meal.id, quantity=quantity)
+        # order = session.query(Order).filter_by(user_id=user_id).first()
+        # order_meal = session.query(OrderMeal).filter_by(user_id=user_id).first()
+
+    def get_order_meals(self, order_id):
+        session = self.Session()
+        return session.query(OrderMeal).filter_by(order_id=order_id).all()
 
     def delete_meal_from_cart(self, user_id, meal_id):
         session = self.Session()
@@ -115,7 +132,7 @@ class DBController:
     def get_users_cart(self, user_id):
         session = self.Session()
         cart = session.query(Cart).filter_by(user_id=user_id).first()
-        cart_meal = session.query(CartMeal).filter_by(cart_id=cart.id).scalar()
+        cart_meal = session.query(CartMeal).filter_by(cart_id=cart.id).all()
         return cart_meal
 
     def fill_categories(self):

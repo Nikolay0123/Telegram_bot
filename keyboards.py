@@ -7,7 +7,6 @@ from database import db_controller
 
 main_menu = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Меню')],
                                           [KeyboardButton(text='Корзина')],
-                                          [KeyboardButton(text='Мои заказы')],
                                           [KeyboardButton(text='Связаться с нами')]], resize_keyboard=True,
                                 input_field_placeholder="Выберите пункт меню")
 
